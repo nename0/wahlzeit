@@ -104,6 +104,8 @@ public class Photo extends DataObject {
 	 */
 	protected long creationTime = System.currentTimeMillis();
 	
+	protected Location location = null;
+	
 	/**
 	 * 
 	 */
@@ -164,6 +166,16 @@ public class Photo extends DataObject {
 		creationTime = rset.getLong("creation_time");
 
 		maxPhotoSize = PhotoSize.getFromWidthHeight(width, height);
+
+		short coordinateType = rset.getShort("location_coordinate_type");
+		if (coordinateType == Location.NONE_COORDINATE_TYPE) {
+			this.location = null;
+		} else {
+			double coordinateParamA = rset.getDouble("location_coordinate_a");
+			double coordinateParamB = rset.getDouble("location_coordinate_b");
+			double coordinateParamC = rset.getDouble("location_coordinate_c");
+			this.location = new Location(coordinateType, coordinateParamA, coordinateParamB, coordinateParamC);	
+		}
 	}
 	
 	/**
@@ -183,7 +195,19 @@ public class Photo extends DataObject {
 		rset.updateInt("status", status.asInt());
 		rset.updateInt("praise_sum", praiseSum);
 		rset.updateInt("no_votes", noVotes);
-		rset.updateLong("creation_time", creationTime);		
+		rset.updateLong("creation_time", creationTime);
+		if (this.location == null) {
+			rset.updateShort("location_coordinate_type", Location.NONE_COORDINATE_TYPE);
+			rset.updateDouble("location_coordinate_a", 0);
+			rset.updateDouble("location_coordinate_b", 0);
+			rset.updateDouble("location_coordinate_c", 0);
+		} else {
+			short coordinateType = this.location.getCoordinateType();
+			rset.updateShort("location_coordinate_type", coordinateType);
+			rset.updateDouble("location_coordinate_a", this.location.getParameterAForDB(coordinateType));
+			rset.updateDouble("location_coordinate_b", this.location.getParameterBForDB(coordinateType));
+			rset.updateDouble("location_coordinate_c", this.location.getParameterCForDB(coordinateType));
+		}
 	}
 
 	/**
@@ -478,4 +502,12 @@ public class Photo extends DataObject {
 		return creationTime;
 	}
 	
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+		incWriteCount();
+	}
 }
