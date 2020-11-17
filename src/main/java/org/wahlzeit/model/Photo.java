@@ -139,7 +139,22 @@ public class Photo extends DataObject {
 	public String getIdAsString() {
 		return String.valueOf(id.asInt());
 	}
-	
+
+    @Override
+    public boolean isDirty() {
+        boolean selfDirty = super.isDirty();
+        boolean locationDirty = location != null && location.isDirty();
+        
+        return selfDirty || locationDirty;
+    }
+
+	@Override
+	public void resetWriteCount() {
+		super.resetWriteCount();
+		if (location != null)
+		    location.resetWriteCount();
+	}
+
 	/**
 	 * 
 	 */
@@ -167,15 +182,9 @@ public class Photo extends DataObject {
 
 		maxPhotoSize = PhotoSize.getFromWidthHeight(width, height);
 
-		short coordinateType = rset.getShort("location_coordinate_type");
-		if (coordinateType == Location.NONE_COORDINATE_TYPE) {
-			this.location = null;
-		} else {
-			double coordinateParamA = rset.getDouble("location_coordinate_a");
-			double coordinateParamB = rset.getDouble("location_coordinate_b");
-			double coordinateParamC = rset.getDouble("location_coordinate_c");
-			this.location = new Location(coordinateType, coordinateParamA, coordinateParamB, coordinateParamC);	
-		}
+        if (location == null)
+            location = new Location(new Coordinate(0,0,0));
+        location.readFrom(rset);
 	}
 	
 	/**
@@ -196,18 +205,8 @@ public class Photo extends DataObject {
 		rset.updateInt("praise_sum", praiseSum);
 		rset.updateInt("no_votes", noVotes);
 		rset.updateLong("creation_time", creationTime);
-		if (this.location == null) {
-			rset.updateShort("location_coordinate_type", Location.NONE_COORDINATE_TYPE);
-			rset.updateDouble("location_coordinate_a", 0);
-			rset.updateDouble("location_coordinate_b", 0);
-			rset.updateDouble("location_coordinate_c", 0);
-		} else {
-			short coordinateType = this.location.getCoordinateType();
-			rset.updateShort("location_coordinate_type", coordinateType);
-			rset.updateDouble("location_coordinate_a", this.location.getParameterAForDB(coordinateType));
-			rset.updateDouble("location_coordinate_b", this.location.getParameterBForDB(coordinateType));
-			rset.updateDouble("location_coordinate_c", this.location.getParameterCForDB(coordinateType));
-		}
+        if (location != null)
+		    location.writeOn(rset);
 	}
 
 	/**

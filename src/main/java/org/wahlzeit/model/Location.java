@@ -1,56 +1,80 @@
 package org.wahlzeit.model;
 
-public class Location {
-    public static final short NONE_COORDINATE_TYPE = 0;
+import org.wahlzeit.services.DataObject;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class Location extends DataObject {
     public static final short CARTESIAN_COORDINATE_TYPE = 1;
-    
-    private final Coordinate coordinate;
+
+    public static final String COLUMN_NAME_TYPE = "location_coordinate_type";
+    public static final String COLUMN_NAME_PARAM_A = "location_coordinate_a";
+    public static final String COLUMN_NAME_PARAM_B = "location_coordinate_b";
+    public static final String COLUMN_NAME_PARAM_C = "location_coordinate_c";
+
+    private Coordinate coordinate;
 
     public Location(Coordinate coordinate) {
-        this.coordinate = coordinate;
-    }
-
-    /**
-     * Create Location from Database
-     * @param coordinateType The Type of the Coordinate from the Database
-     * @param paramA The first Parameter from the Database
-     * @param paramB The second Parameter from the Database
-     * @param paramC The thrid Parameter from the Database
-     */
-    public Location(short coordinateType, double paramA, double paramB, double paramC) {
-        if (coordinateType == CARTESIAN_COORDINATE_TYPE) {
-            this.coordinate = new Coordinate(paramA, paramB, paramC);
-        } else {
-            throw new IllegalArgumentException("Unknown Coordinate Type");
+        if (coordinate == null) {
+            throw new IllegalArgumentException("coordinate must be non-null");
         }
+        this.coordinate = coordinate;
     }
 
     public Coordinate getCoordinate() {
         return coordinate;
     }
 
+    public void setCoordinate(Coordinate coordinate) {
+        if (coordinate == null) {
+            throw new IllegalArgumentException("coordinate must be non-null");
+        }
+        this.coordinate = coordinate;
+        incWriteCount();
+    }
+
     public short getCoordinateType() {
         return CARTESIAN_COORDINATE_TYPE;
     }
 
-    public double getParameterAForDB(short coordinateType) {
-        if (coordinateType == CARTESIAN_COORDINATE_TYPE) {
-            return this.coordinate.getX();
-        }
-        throw new IllegalArgumentException("Unknown Coordinate Type");
+    @Override
+    public boolean isDirty() {
+        boolean selfDirty = super.isDirty();
+        boolean coordinateDirty = coordinate.isDirty();
+
+        return selfDirty || coordinateDirty;
     }
 
-    public double getParameterBForDB(short coordinateType) {
-        if (coordinateType == CARTESIAN_COORDINATE_TYPE) {
-            return this.coordinate.getY();
-        }
-        throw new IllegalArgumentException("Unknown Coordinate Type");
+    @Override
+    public void resetWriteCount() {
+        super.resetWriteCount();
+        coordinate.resetWriteCount();
     }
 
-    public double getParameterCForDB(short coordinateType) {
+    @Override
+    public void readFrom(ResultSet rset) throws SQLException {
+        short coordinateType = rset.getShort(COLUMN_NAME_TYPE);
+        coordinate = new Coordinate(0, 0, 0);
         if (coordinateType == CARTESIAN_COORDINATE_TYPE) {
-            return this.coordinate.getZ();
+            coordinate.readFrom(rset);  
         }
-        throw new IllegalArgumentException("Unknown Coordinate Type");
+    }
+
+    @Override
+    public void writeOn(ResultSet rset) throws SQLException {
+        rset.updateShort("location_coordinate_type", CARTESIAN_COORDINATE_TYPE);
+        coordinate.writeOn(rset);
+    }
+    
+    @Override
+    public String getIdAsString() {
+        throw new UnsupportedOperationException("Location is not stored in a separate table. So no ids");
+    }
+
+    @Override
+    public void writeId(PreparedStatement stmt, int pos) throws SQLException {
+        throw new UnsupportedOperationException("Location is not stored in a separate table. So no ids");
     }
 }

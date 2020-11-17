@@ -39,14 +39,14 @@ public abstract class DataObject implements Persistent {
 	/**
 	 * 
 	 */
-	public final boolean isDirty() {
+	public boolean isDirty() {
 		return writeCount != 0;
 	}
 	
 	/**
 	 * 
 	 */
-	public final void resetWriteCount() {
+	public void resetWriteCount() {
 		writeCount = 0;
 	}
 	
