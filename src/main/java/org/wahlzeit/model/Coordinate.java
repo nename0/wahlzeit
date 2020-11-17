@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 public class Coordinate extends DataObject {
-    private static final double COMPARE_DELTA = 1e-6;
+    private static final double COMPARE_ACCURACY = 1e-6;
 
     private double x;
     private double y;
@@ -54,8 +54,13 @@ public class Coordinate extends DataObject {
         return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
     }
 
-    private static boolean compareDoubles(double a, double b) {
-        return Math.abs(a - b) < COMPARE_DELTA;
+    private static double normalizeDouble(double value) {
+        // rounds so that the result is a multiple of COMPARE_ACCURACY closest to the original value 
+        return Math.rint(value / COMPARE_ACCURACY) * COMPARE_ACCURACY;
+    }
+
+    private static boolean compareDoublesNormalized(double a, double b) {
+        return normalizeDouble(a) == normalizeDouble(b);
     }
 
     public boolean isEqual(Coordinate other) {
@@ -65,14 +70,18 @@ public class Coordinate extends DataObject {
         if (other == this) {
             return true;
         }
-        return compareDoubles(other.x, x) &&
-                compareDoubles(other.y, y) &&
-                compareDoubles(other.z, z);
+        return compareDoublesNormalized(other.x, x) &&
+                compareDoublesNormalized(other.y, y) &&
+                compareDoublesNormalized(other.z, z);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, z);
+        return Objects.hash(
+                normalizeDouble(x),
+                normalizeDouble(y),
+                normalizeDouble(z)
+        );
     }
 
     @Override
@@ -96,7 +105,7 @@ public class Coordinate extends DataObject {
         rset.updateDouble(Location.COLUMN_NAME_PARAM_B, this.y);
         rset.updateDouble(Location.COLUMN_NAME_PARAM_C, this.z);
     }
-    
+
     @Override
     public String getIdAsString() {
         throw new UnsupportedOperationException("Coordinate is not stored in a separate table. So no ids");
