@@ -33,7 +33,8 @@ CREATE TABLE photos (
 	location_coordinate_type smallint,
 	location_coordinate_a double precision,
 	location_coordinate_b double precision,
-	location_coordinate_c double precision
+	location_coordinate_c double precision,
+	date_built bigint
 );
 
 CREATE TABLE tags (

@@ -33,9 +33,32 @@ import org.wahlzeit.services.*;
 public class PhotoManager extends ObjectManager {
 	
 	/**
-	 * 
+	 * Hidden singleton instance; needs to be initialized from the outside.
 	 */
-	protected static final PhotoManager instance = new PhotoManager();
+	private static PhotoManager instance = null;
+
+	/**
+	 * Public singleton access method.
+	 */
+	public static synchronized PhotoManager getInstance() {
+		if (instance == null) {
+			SysLog.logSysInfo("setting BuildingPhotoManager");
+			setInstance(new BuildingPhotoManager());
+		}
+
+		return instance;
+	}
+
+	/**
+	 * Method to set the singleton instance of PhotoManager.
+	 */
+	protected static synchronized void setInstance(PhotoManager photoManager) {
+		if (instance != null) {
+			throw new IllegalStateException("attempt to initialize PhotoManager twice");
+		}
+
+		instance = photoManager;
+	}
 
 	/**
 	 * In-memory cache for photos
@@ -46,13 +69,6 @@ public class PhotoManager extends ObjectManager {
 	 * 
 	 */
 	protected PhotoTagCollector photoTagCollector = null;
-	
-	/**
-	 * 
-	 */
-	public static final PhotoManager getInstance() {
-		return instance;
-	}
 	
 	/**
 	 * 
@@ -79,7 +95,7 @@ public class PhotoManager extends ObjectManager {
 	 * 
 	 */
 	public static final Photo getPhoto(PhotoId id) {
-		return instance.getPhotoFromId(id);
+		return getInstance().getPhotoFromId(id);
 	}
 	
 	/**
