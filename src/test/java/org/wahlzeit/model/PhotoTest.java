@@ -8,7 +8,7 @@ public class PhotoTest {
 
     @Test
     public void testLocationGetterSetter() {
-        Coordinate c = new Coordinate(1, 2, 3);
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         Location l = new Location(c);
         Photo p = new Photo();
         
@@ -23,8 +23,8 @@ public class PhotoTest {
     
     @Test
     public void testDirtyLocationReset() {
-        Coordinate c1 = new Coordinate(1, 2, 3);
-        Coordinate c2 = new Coordinate(3, 4, 5);
+        CartesianCoordinate c1 = new CartesianCoordinate(1, 2, 3);
+        CartesianCoordinate c2 = new CartesianCoordinate(3, 4, 5);
         Location l = new Location(c1);
         Photo p = new Photo();
         p.setLocation(l);
@@ -41,7 +41,7 @@ public class PhotoTest {
 
     @Test
     public void testDirtyCoordinateReset() {
-        Coordinate c = new Coordinate(1, 2, 3);
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         Location l = new Location(c);
         Photo p = new Photo();
         p.setLocation(l);

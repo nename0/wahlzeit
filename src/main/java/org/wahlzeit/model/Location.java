@@ -8,7 +8,8 @@ import java.sql.SQLException;
 
 public class Location extends DataObject {
     public static final short CARTESIAN_COORDINATE_TYPE = 1;
-
+    public static final short SPHERIC_COORDINATE_TYPE = 2;
+                              
     public static final String COLUMN_NAME_TYPE = "location_coordinate_type";
     public static final String COLUMN_NAME_PARAM_A = "location_coordinate_a";
     public static final String COLUMN_NAME_PARAM_B = "location_coordinate_b";
@@ -36,7 +37,7 @@ public class Location extends DataObject {
     }
 
     public short getCoordinateType() {
-        return CARTESIAN_COORDINATE_TYPE;
+        return coordinate.getCoordinateType();
     }
 
     @Override
@@ -56,15 +57,20 @@ public class Location extends DataObject {
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
         short coordinateType = rset.getShort(COLUMN_NAME_TYPE);
-        coordinate = new Coordinate(0, 0, 0);
         if (coordinateType == CARTESIAN_COORDINATE_TYPE) {
-            coordinate.readFrom(rset);  
+            coordinate = new CartesianCoordinate(0, 0, 0);
+        } else if (coordinateType == SPHERIC_COORDINATE_TYPE) {
+            coordinate = new SphericCoordinate(0,0,0);
+        } else {
+            // just use cartesian as default
+            coordinate = new CartesianCoordinate(0, 0, 0);
         }
+        coordinate.readFrom(rset);
     }
 
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
-        rset.updateShort("location_coordinate_type", CARTESIAN_COORDINATE_TYPE);
+        rset.updateShort("location_coordinate_type", getCoordinateType());
         coordinate.writeOn(rset);
     }
     

@@ -13,14 +13,14 @@ public class LocationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullCoordinateSetter() {
-        Location l = new Location(new Coordinate(0,0,0));
+        Location l = new Location(new CartesianCoordinate(0,0,0));
         
         l.setCoordinate(null);
     }
     
     @Test
     public void testGetter() {
-        Coordinate c = new Coordinate(1, 2, 3);
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         Location l = new Location(c); 
         
         assertEquals(c, l.getCoordinate());
@@ -28,8 +28,8 @@ public class LocationTest {
     
     @Test
     public void testSetter() {
-        Coordinate c1 = new Coordinate(1, 2, 3);
-        Coordinate c2 = new Coordinate(4, 5, 6);
+        CartesianCoordinate c1 = new CartesianCoordinate(1, 2, 3);
+        CartesianCoordinate c2 = new CartesianCoordinate(4, 5, 6);
         Location l = new Location(c1);
         
         l.setCoordinate(c2);
@@ -42,7 +42,7 @@ public class LocationTest {
     
     @Test
     public void testType() {
-        Coordinate c = new Coordinate(1, 2, 3);
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         Location l = new Location(c);
         
         assertEquals(Location.CARTESIAN_COORDINATE_TYPE, l.getCoordinateType());
@@ -50,7 +50,7 @@ public class LocationTest {
     
     @Test
     public void testDirtyReset() {
-        Coordinate c = new Coordinate(1, 2, 3);
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         Location l = new Location(c);
         
         c.setX(4);
