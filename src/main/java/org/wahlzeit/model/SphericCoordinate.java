@@ -1,14 +1,11 @@
 package org.wahlzeit.model;
 
-import org.wahlzeit.services.DataObject;
-
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static java.lang.Math.*;
 
-public class SphericCoordinate extends DataObject implements Coordinate {
+public class SphericCoordinate extends AbstractCoordinate {
     private double phi;
     private double theta;
     private double radius;
@@ -47,19 +44,6 @@ public class SphericCoordinate extends DataObject implements Coordinate {
     }
 
     @Override
-    public int hashCode() {
-        return asCartesianCoordinate().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Coordinate) {
-            return asCartesianCoordinate().isEqual((Coordinate) o);
-        }
-        return false;
-    }
-
-    @Override
     public void readFrom(ResultSet rset) throws SQLException {
         this.phi = rset.getDouble(Location.COLUMN_NAME_PARAM_A);
         this.theta = rset.getDouble(Location.COLUMN_NAME_PARAM_B);
@@ -71,16 +55,6 @@ public class SphericCoordinate extends DataObject implements Coordinate {
         rset.updateDouble(Location.COLUMN_NAME_PARAM_A, this.phi);
         rset.updateDouble(Location.COLUMN_NAME_PARAM_B, this.theta);
         rset.updateDouble(Location.COLUMN_NAME_PARAM_C, this.radius);
-    }
-
-    @Override
-    public String getIdAsString() {
-        throw new UnsupportedOperationException("Coordinate is not stored in a separate table. So no ids");
-    }
-
-    @Override
-    public void writeId(PreparedStatement stmt, int pos) throws SQLException {
-        throw new UnsupportedOperationException("Coordinate is not stored in a separate table. So no ids");
     }
 
     @Override
@@ -98,11 +72,6 @@ public class SphericCoordinate extends DataObject implements Coordinate {
     }
 
     @Override
-    public double getCartesianDistance(Coordinate other) {
-        return asCartesianCoordinate().getCartesianDistance(other);
-    }
-
-    @Override
     public double getCentralAngle(Coordinate other) {
         SphericCoordinate otherSpheric = other.asSphericCoordinate();
         double deltaPhi = abs(phi - otherSpheric.phi);
@@ -114,11 +83,6 @@ public class SphericCoordinate extends DataObject implements Coordinate {
         // there might be rounding issues
         ratio = max(-1, min(1, ratio));
         return acos(ratio);
-    }
-
-    @Override
-    public boolean isEqual(Coordinate other) {
-        return asCartesianCoordinate().isEqual(other);
     }
 
     @Override
