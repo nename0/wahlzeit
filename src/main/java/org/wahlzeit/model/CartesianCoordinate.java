@@ -6,15 +6,27 @@ import java.util.Objects;
 
 public class CartesianCoordinate extends AbstractCoordinate {
     private static final CartesianCoordinate ORIGIN = new CartesianCoordinate(0, 0, 0);
-    
+
     private double x;
     private double y;
     private double z;
 
     public CartesianCoordinate(double x, double y, double z) {
+        assertValidCartesianCoordinates(x, y, z);
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    protected static void assertValidCartesianCoordinates(double x, double y, double z) {
+        assertScalarValue(x);
+        assertScalarValue(y);
+        assertScalarValue(z);
+    }
+
+    @Override
+    protected void assertClassInvariants() {
+        assertValidCartesianCoordinates(x, y, z);
     }
 
     public double getX() {
@@ -30,16 +42,19 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     public void setX(double x) {
+        assertScalarValue(x);
         this.x = x;
         this.incWriteCount();
     }
 
     public void setY(double y) {
+        assertScalarValue(y);
         this.y = y;
         this.incWriteCount();
     }
 
     public void setZ(double z) {
+        assertScalarValue(z);
         this.z = z;
         this.incWriteCount();
     }
@@ -52,7 +67,7 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     @Override
-    public int hashCode() {
+    protected int doGetHashCode() {
         return Objects.hash(
                 normalizeDouble(x),
                 normalizeDouble(y),
@@ -61,26 +76,26 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     @Override
-    public void readFrom(ResultSet rset) throws SQLException {
+    protected void doReadFrom(ResultSet rset) throws SQLException {
         this.x = rset.getDouble(Location.COLUMN_NAME_PARAM_A);
         this.y = rset.getDouble(Location.COLUMN_NAME_PARAM_B);
         this.z = rset.getDouble(Location.COLUMN_NAME_PARAM_C);
     }
 
     @Override
-    public void writeOn(ResultSet rset) throws SQLException {
+    protected void doWriteOn(ResultSet rset) throws SQLException {
         rset.updateDouble(Location.COLUMN_NAME_PARAM_A, this.x);
         rset.updateDouble(Location.COLUMN_NAME_PARAM_B, this.y);
         rset.updateDouble(Location.COLUMN_NAME_PARAM_C, this.z);
     }
 
     @Override
-    public CartesianCoordinate asCartesianCoordinate() {
+    protected CartesianCoordinate doGetAsCartesianCoordinate() {
         return this;
     }
 
     @Override
-    public SphericCoordinate asSphericCoordinate() {
+    protected SphericCoordinate doGetAsSphericCoordinate() {
         double radius = getDistance(ORIGIN);
         if (radius == 0) {
             return new SphericCoordinate(0, 0, 0);
@@ -91,15 +106,12 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     @Override
-    public double getCartesianDistance(Coordinate other) {
+    protected double doGetCartesianDistance(Coordinate other) {
         return this.getDistance(other.asCartesianCoordinate());
     }
 
     @Override
-    public boolean isEqual(Coordinate other) {
-        if (other == null) {
-            return false;
-        }
+    protected boolean doCheckEqual(Coordinate other) {
         if (other == this) {
             return true;
         }
@@ -110,7 +122,7 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     @Override
-    public short getCoordinateType() {
+    protected short doGetCoordinateType() {
         return Location.CARTESIAN_COORDINATE_TYPE;
     }
 }

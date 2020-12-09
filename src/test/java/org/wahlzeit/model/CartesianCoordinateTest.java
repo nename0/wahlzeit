@@ -7,6 +7,21 @@ import static org.junit.Assert.*;
 public class CartesianCoordinateTest {
     public static final double DELTA = 1e-6;
 
+    @Test(expected = IllegalStateException.class)
+    public void testConstructorPreconditions1() {
+        new CartesianCoordinate(Double.NaN, 0, 0);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testConstructorPreconditions2() {
+        new CartesianCoordinate(0, Double.POSITIVE_INFINITY, 0);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testConstructorPreconditions3() {
+        new CartesianCoordinate(0, 0, Double.NEGATIVE_INFINITY);
+    }
+
     @Test
     public void testGetter() {
         CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
@@ -29,6 +44,24 @@ public class CartesianCoordinateTest {
         assertEquals(13, c.getZ(), DELTA);
 
         assertTrue(c.isDirty());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetterPreconditions1() {
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
+        c.setX(Double.NaN);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetterPreconditions2() {
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
+        c.setY(Double.POSITIVE_INFINITY);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetterPreconditions3() {
+        CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
+        c.setZ(Double.NEGATIVE_INFINITY);
     }
 
     @Test
@@ -64,7 +97,6 @@ public class CartesianCoordinateTest {
         assertTrue(c.isEqual(new CartesianCoordinate(1, 2, 3)));
         assertTrue(c.isEqual(c));
 
-        assertFalse(c.isEqual(null));
         assertFalse(c.isEqual(new CartesianCoordinate(1, 2, 0)));
         assertFalse(c.isEqual(new CartesianCoordinate(1, 0, 2)));
         assertFalse(c.isEqual(new CartesianCoordinate(0, 2, 2)));
@@ -99,7 +131,7 @@ public class CartesianCoordinateTest {
         assertEquals(c2, c1);
         assertEquals(c1.hashCode(), c2.hashCode());
     }
-    
+
     void assertRadiansEq(double expected, double actual) {
         // -90° needs to be equal 270° 
         expected = (expected + Math.toRadians(360)) % Math.toRadians(360);
@@ -157,12 +189,12 @@ public class CartesianCoordinateTest {
         assertRadiansEq(Math.toRadians(180), asSpheric.getTheta());
         assertEquals(asSpheric.getRadius(), 3, DELTA);
     }
-    
+
     @Test
     public void testCartesianDistance() {
         CartesianCoordinate c1 = new CartesianCoordinate(1, 0, 0);
         CartesianCoordinate c2 = new CartesianCoordinate(0, 1, 0);
-        
+
         assertEquals(Math.sqrt(2), c1.getCartesianDistance(c2.asSphericCoordinate()), DELTA);
         assertEquals(Math.sqrt(2), c2.getCartesianDistance(c1.asSphericCoordinate()), DELTA);
 

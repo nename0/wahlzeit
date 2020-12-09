@@ -7,6 +7,21 @@ import static org.junit.Assert.*;
 public class SphericCoordinateTest {
     public static final double DELTA = 1e-6;
 
+    @Test(expected = IllegalStateException.class)
+    public void testConstructorPreconditions1() {
+        new SphericCoordinate(Double.NaN, 0, 0);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testConstructorPreconditions2() {
+        new SphericCoordinate(0, Double.POSITIVE_INFINITY, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorPreconditions3() {
+        new SphericCoordinate(0, 0, -1);
+    }
+    
     @Test
     public void testGetter() {
         SphericCoordinate c = new SphericCoordinate(1, 2, 3);
@@ -29,6 +44,24 @@ public class SphericCoordinateTest {
         assertEquals(13, c.getRadius(), DELTA);
 
         assertTrue(c.isDirty());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetterPreconditions1() {
+        SphericCoordinate c = new SphericCoordinate(1, 2, 3);
+        c.setPhi(Double.NaN);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSetterPreconditions2() {
+        SphericCoordinate c = new SphericCoordinate(1, 2, 3);
+        c.setTheta(Double.POSITIVE_INFINITY);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetterPreconditions3() {
+        SphericCoordinate c = new SphericCoordinate(1, 2, 3);
+        c.setRadius(-1);
     }
 
     @Test
@@ -73,8 +106,7 @@ public class SphericCoordinateTest {
         assertEquals(c, new SphericCoordinate(1, 2, 3));
         assertTrue(c.isEqual(c));
         assertEquals(c, c);
-
-        assertFalse(c.isEqual(null));
+        
         assertNotEquals(c, null);
         assertFalse(c.isEqual(new SphericCoordinate(1, 2, 0)));
         assertNotEquals(c, new SphericCoordinate(1, 2, 0));
@@ -82,8 +114,8 @@ public class SphericCoordinateTest {
         assertNotEquals(c, new SphericCoordinate(1, 0, 2));
         assertFalse(c.isEqual(new SphericCoordinate(0, 2, 2)));
         assertNotEquals(c, new SphericCoordinate(0, 2, 2));
-        assertFalse(c.isEqual(new SphericCoordinate(-1, -2, -3)));
-        assertNotEquals(c, new SphericCoordinate(-1, -2, -3));
+        assertFalse(c.isEqual(new SphericCoordinate(-1, -2, 3)));
+        assertNotEquals(c, new SphericCoordinate(-1, -2, 3));
     }
 
     @Test
