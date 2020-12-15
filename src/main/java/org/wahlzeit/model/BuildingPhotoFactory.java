@@ -4,18 +4,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class BuildingPhotoFactory extends PhotoFactory {
+    public static BuildingPhotoFactory getInstance() {
+        return (BuildingPhotoFactory) PhotoFactory.getInstance();
+    }
+    
     @Override
-    public Photo createPhoto() {
+    public BuildingPhoto createPhoto() {
         return new BuildingPhoto();
     }
 
     @Override
-    public Photo createPhoto(PhotoId id) {
+    public BuildingPhoto createPhoto(PhotoId id) {
         return new BuildingPhoto(id);
     }
 
     @Override
-    public Photo createPhoto(ResultSet rs) throws SQLException {
+    public BuildingPhoto createPhoto(ResultSet rs) throws SQLException {
         return new BuildingPhoto(rs);
     }
 }

@@ -1,5 +1,8 @@
 package org.wahlzeit.model;
 
+import org.wahlzeit.utils.Invariants;
+import org.wahlzeit.utils.Preconditions;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -11,22 +14,21 @@ public class SphericCoordinate extends AbstractCoordinate {
     private double radius;
 
     public SphericCoordinate(double phi, double theta, double radius) {
-        assertValidSphericCoordinates(phi, theta, radius);
+        Preconditions.assertScalar(phi, "phi must be scalar");
+        Preconditions.assertScalar(theta, "theta must be scalar");
+        Preconditions.assertScalar(radius, "radius must be scalar");
+        Preconditions.assertNonNegative(radius, "radius must be non-negative");
         this.phi = phi;
         this.theta = theta;
         this.radius = radius;
     }
 
-    protected static void assertValidSphericCoordinates(double phi, double theta, double radius) {
-        assertScalarValue(phi);
-        assertScalarValue(theta);
-        assertScalarValue(radius);
-        assertNonNegative(radius);
-    }
-
     @Override
     protected void assertClassInvariants() {
-        assertValidSphericCoordinates(phi, theta, radius);
+        Invariants.assertScalar(phi, "phi not scalar");
+        Invariants.assertScalar(theta, "theta not scalar");
+        Invariants.assertScalar(radius, "radius not scalar");
+        Invariants.assertNonNegative(radius, "radius negative");
     }
 
     public double getPhi() {
@@ -42,29 +44,36 @@ public class SphericCoordinate extends AbstractCoordinate {
     }
 
     public void setPhi(double phi) {
-        assertScalarValue(phi);
+        Preconditions.assertScalar(phi, "phi must be scalar");
         this.phi = phi;
         incWriteCount();
     }
 
     public void setTheta(double theta) {
-        assertScalarValue(theta);
+        Preconditions.assertScalar(theta, "theta must be scalar");
         this.theta = theta;
         incWriteCount();
     }
 
     public void setRadius(double radius) {
-        assertScalarValue(radius);
-        assertNonNegative(radius);
+        Preconditions.assertScalar(radius, "radius must be scalar");
+        Preconditions.assertNonNegative(radius, "radius must be non-negative");
         this.radius = radius;
         incWriteCount();
     }
 
     @Override
     protected void doReadFrom(ResultSet rset) throws SQLException {
-        this.phi = rset.getDouble(Location.COLUMN_NAME_PARAM_A);
-        this.theta = rset.getDouble(Location.COLUMN_NAME_PARAM_B);
-        this.radius = rset.getDouble(Location.COLUMN_NAME_PARAM_C);
+        double phi = rset.getDouble(Location.COLUMN_NAME_PARAM_A);
+        double theta = rset.getDouble(Location.COLUMN_NAME_PARAM_B);
+        double radius = rset.getDouble(Location.COLUMN_NAME_PARAM_C);
+        Preconditions.assertScalar(phi, "phi not scalar in database");
+        Preconditions.assertScalar(theta, "theta not scalar in database");
+        Preconditions.assertScalar(radius, "radius not scalar in database");
+        Preconditions.assertNonNegative(radius, "radius negative in database");
+        this.phi = phi;
+        this.theta = theta;
+        this.radius = radius;
     }
 
     @Override

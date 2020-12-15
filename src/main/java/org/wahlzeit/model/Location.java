@@ -1,6 +1,7 @@
 package org.wahlzeit.model;
 
 import org.wahlzeit.services.DataObject;
+import org.wahlzeit.utils.Preconditions;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,8 +63,7 @@ public class Location extends DataObject {
         } else if (coordinateType == SPHERIC_COORDINATE_TYPE) {
             coordinate = new SphericCoordinate(0,0,0);
         } else {
-            // just use cartesian as default
-            coordinate = new CartesianCoordinate(0, 0, 0);
+            Preconditions.fail("Unknown coordinate type: " + coordinateType);
         }
         coordinate.readFrom(rset);
     }

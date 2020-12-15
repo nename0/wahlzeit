@@ -184,7 +184,12 @@ public class Photo extends DataObject {
 
         if (location == null)
             location = new Location(new CartesianCoordinate(0,0,0));
-        location.readFrom(rset);
+        try {
+			location.readFrom(rset);
+		} catch (IllegalArgumentException e) {
+			SysLog.logSysError("Invalid Location in database: " + e.getMessage() + ". Setting Location to default value");
+			location = new Location(new CartesianCoordinate(0, 0, 0));
+		}
 	}
 	
 	/**
@@ -205,8 +210,13 @@ public class Photo extends DataObject {
 		rset.updateInt("praise_sum", praiseSum);
 		rset.updateInt("no_votes", noVotes);
 		rset.updateLong("creation_time", creationTime);
-        if (location != null)
-		    location.writeOn(rset);
+		if (location != null) {
+			try {
+				location.writeOn(rset);
+			} catch (Exception e) {
+				SysLog.logSysError("Failed to write Location to database: " + e.getMessage());
+			}
+		}
 	}
 
 	/**

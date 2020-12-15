@@ -7,17 +7,17 @@ import static org.junit.Assert.*;
 public class CartesianCoordinateTest {
     public static final double DELTA = 1e-6;
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testConstructorPreconditions1() {
         new CartesianCoordinate(Double.NaN, 0, 0);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testConstructorPreconditions2() {
         new CartesianCoordinate(0, Double.POSITIVE_INFINITY, 0);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testConstructorPreconditions3() {
         new CartesianCoordinate(0, 0, Double.NEGATIVE_INFINITY);
     }
@@ -46,19 +46,19 @@ public class CartesianCoordinateTest {
         assertTrue(c.isDirty());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSetterPreconditions1() {
         CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         c.setX(Double.NaN);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSetterPreconditions2() {
         CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         c.setY(Double.POSITIVE_INFINITY);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSetterPreconditions3() {
         CartesianCoordinate c = new CartesianCoordinate(1, 2, 3);
         c.setZ(Double.NEGATIVE_INFINITY);

@@ -1,6 +1,8 @@
 package org.wahlzeit.model;
 
 import org.wahlzeit.services.DataObject;
+import org.wahlzeit.utils.Invariants;
+import org.wahlzeit.utils.Preconditions;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +29,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
 
         CartesianCoordinate coordinate = doGetAsCartesianCoordinate();
 
-        assertNotNull(coordinate);
+        Invariants.assertNotNull(coordinate, "Result of doGetAsCartesianCoordinate() is null");
         assertClassInvariants();
         return coordinate;
     }
@@ -40,7 +42,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
 
         SphericCoordinate coordinate = doGetAsSphericCoordinate();
 
-        assertNotNull(coordinate);
+        Invariants.assertNotNull(coordinate, "Result of doGetAsSphericCoordinate() is null");
         assertClassInvariants();
         return coordinate;
     }
@@ -50,11 +52,11 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public double getCartesianDistance(Coordinate other) {
         assertClassInvariants();
-        assertNotNull(other);
+        Preconditions.assertNotNull(other, "Coordinate must be non-null");
         
         double distance = doGetCartesianDistance(other);
         
-        assertNonNegative(distance);
+        Invariants.assertNonNegative(distance, "doGetCartesianDistance() was negative");
         assertClassInvariants();
         return distance;
     }
@@ -66,11 +68,11 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public double getCentralAngle(Coordinate other) {
         assertClassInvariants();
-        assertNotNull(other);
+        Preconditions.assertNotNull(other, "Coordinate must be non-null");
 
         double angle = doGetCentralAngle(other);
 
-        assertValidCentralAngle(angle);
+        Invariants.assertBetween(angle, Math.toRadians(0), Math.toRadians(180), "Central angle should be between 0° and 180°");
         assertClassInvariants();
         return angle;
     }
@@ -82,7 +84,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public boolean isEqual(Coordinate other) {
         assertClassInvariants();
-        assertNotNull(other);
+        Preconditions.assertNotNull(other, "Coordinate must be non-null");
 
         boolean result = doCheckEqual(other);
         
@@ -135,7 +137,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
         assertClassInvariants();
-        assertNotNull(rset);
+        Preconditions.assertNotNull(rset, "Expected non-null ResultSet");
 
         doReadFrom(rset);
         
@@ -147,7 +149,7 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
         assertClassInvariants();
-        assertNotNull(rset);
+        Preconditions.assertNotNull(rset, "Expected non-null ResultSet");
 
         doWriteOn(rset);
 
@@ -155,30 +157,6 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     }
 
     protected abstract void doWriteOn(ResultSet rset) throws SQLException;
-
-    protected static void assertScalarValue(double d) {
-        if (Double.isInfinite(d) || Double.isNaN(d)) {
-            throw new IllegalStateException("should be neither Infinite nor NaN");
-        }
-    }
-    
-    protected static void assertNonNegative(double d) {
-        if (d < 0) {
-            throw new IllegalArgumentException("should be non-negative");
-        }
-    }
-    
-    protected static void assertValidCentralAngle(double angleRad) {
-        if (angleRad < Math.toRadians(0) || angleRad > Math.toRadians(180)) {
-            throw new IllegalArgumentException("should be between 0° and 180°");
-        }
-    }
-    
-    protected static void assertNotNull(Object o) {
-        if (o == null) {
-            throw new NullPointerException();
-        }
-    }
 
     @Override
     public String getIdAsString() {
