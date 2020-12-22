@@ -42,30 +42,15 @@ public class Location extends DataObject {
     }
 
     @Override
-    public boolean isDirty() {
-        boolean selfDirty = super.isDirty();
-        boolean coordinateDirty = coordinate.isDirty();
-
-        return selfDirty || coordinateDirty;
-    }
-
-    @Override
-    public void resetWriteCount() {
-        super.resetWriteCount();
-        coordinate.resetWriteCount();
-    }
-
-    @Override
     public void readFrom(ResultSet rset) throws SQLException {
         short coordinateType = rset.getShort(COLUMN_NAME_TYPE);
         if (coordinateType == CARTESIAN_COORDINATE_TYPE) {
-            coordinate = new CartesianCoordinate(0, 0, 0);
+            coordinate = CartesianCoordinate.getFromSQL(rset);
         } else if (coordinateType == SPHERIC_COORDINATE_TYPE) {
-            coordinate = new SphericCoordinate(0,0,0);
+            coordinate = SphericCoordinate.getFromSQL(rset);
         } else {
             Preconditions.fail("Unknown coordinate type: " + coordinateType);
         }
-        coordinate.readFrom(rset);
     }
 
     @Override

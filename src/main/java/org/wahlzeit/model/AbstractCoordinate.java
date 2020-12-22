@@ -7,6 +7,7 @@ import org.wahlzeit.utils.Preconditions;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public abstract class AbstractCoordinate extends DataObject implements Coordinate {
 
@@ -93,21 +94,14 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     }
     
     protected boolean doCheckEqual(Coordinate other) {
-        return asCartesianCoordinate().isEqual(other);
+        // because coordinates are value objects they can be compared using object reference
+        return asCartesianCoordinate() == other.asCartesianCoordinate();
     }
 
     @Override
     public int hashCode() {
-        assertClassInvariants();
-
-        int result = doGetHashCode();
-
-        assertClassInvariants();
-        return result;
-    }
-    
-    protected int doGetHashCode() {
-        return asCartesianCoordinate().hashCode();
+        // because coordinates are value objects they can be compared using object reference
+        return System.identityHashCode(asCartesianCoordinate());
     }
 
     @Override
@@ -135,18 +129,6 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     protected abstract short doGetCoordinateType();
 
     @Override
-    public void readFrom(ResultSet rset) throws SQLException {
-        assertClassInvariants();
-        Preconditions.assertNotNull(rset, "Expected non-null ResultSet");
-
-        doReadFrom(rset);
-        
-        assertClassInvariants();
-    }
-
-    protected abstract void doReadFrom(ResultSet rset) throws SQLException;
-
-    @Override
     public void writeOn(ResultSet rset) throws SQLException {
         assertClassInvariants();
         Preconditions.assertNotNull(rset, "Expected non-null ResultSet");
@@ -157,7 +139,12 @@ public abstract class AbstractCoordinate extends DataObject implements Coordinat
     }
 
     protected abstract void doWriteOn(ResultSet rset) throws SQLException;
-
+    
+    @Override
+    public void readFrom(ResultSet rset) throws SQLException {
+        throw new UnsupportedOperationException("Coordinate is a value object and cannot be modified. Use getFromSQL() instead");
+    }
+    
     @Override
     public String getIdAsString() {
         throw new UnsupportedOperationException("Coordinate is not stored in a separate table. So no ids");

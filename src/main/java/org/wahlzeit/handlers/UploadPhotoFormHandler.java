@@ -83,7 +83,7 @@ public class UploadPhotoFormHandler extends AbstractWebFormHandler {
 			photo.setTags(new Tags(tags));
 			
 			try {
-				Location location = new Location(new CartesianCoordinate(location_x, location_y, location_z));
+				Location location = new Location(CartesianCoordinate.get(location_x, location_y, location_z));
 				photo.setLocation(location);
 				
 				photo.setDateBuilt(dateBuilt);

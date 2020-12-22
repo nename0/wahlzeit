@@ -5,95 +5,72 @@ import org.wahlzeit.utils.Preconditions;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class CartesianCoordinate extends AbstractCoordinate {
-    private static final CartesianCoordinate ORIGIN = new CartesianCoordinate(0, 0, 0);
+    // Because we are value objects hashCode() and equals() work on reference identity.
+    // However for this cache we need to compare the actually attribute vales therefore we need the ValueHolder class
+    private static final Map<ValueHolder, CartesianCoordinate> sharedObjectsCache = new HashMap<>();
 
-    private double x;
-    private double y;
-    private double z;
+    public static final CartesianCoordinate ORIGIN = get(0, 0, 0);
+    
+    private final ValueHolder valueHolder;
 
-    public CartesianCoordinate(double x, double y, double z) {
+    private CartesianCoordinate(ValueHolder valueHolder) {
+        this.valueHolder = valueHolder;
+    }
+
+    public static CartesianCoordinate get(double x, double y, double z) {
         Preconditions.assertScalar(x, "x must be scalar");
         Preconditions.assertScalar(y, "y must be scalar");
         Preconditions.assertScalar(z, "z must be scalar");
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        ValueHolder valueHolder = new ValueHolder(x, y, z);
+        return sharedObjectsCache.computeIfAbsent(valueHolder, CartesianCoordinate::new);
     }
 
-    @Override
-    protected void assertClassInvariants() {
-        Invariants.assertScalar(x, "x not scalar");
-        Invariants.assertScalar(y, "y not scalar");
-        Invariants.assertScalar(z, "z not scalar");
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getZ() {
-        return z;
-    }
-
-    public void setX(double x) {
-        Preconditions.assertScalar(x, "x must be scalar");
-        this.x = x;
-        this.incWriteCount();
-    }
-
-    public void setY(double y) {
-        Preconditions.assertScalar(y, "y must be scalar");
-        this.y = y;
-        this.incWriteCount();
-    }
-
-    public void setZ(double z) {
-        Preconditions.assertScalar(z, "z must be scalar");
-        this.z = z;
-        this.incWriteCount();
-    }
-
-    public double getDistance(CartesianCoordinate distanceTo) {
-        double dx = x - distanceTo.x;
-        double dy = y - distanceTo.y;
-        double dz = z - distanceTo.z;
-        return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
-    }
-
-    @Override
-    protected int doGetHashCode() {
-        return Objects.hash(
-                normalizeDouble(x),
-                normalizeDouble(y),
-                normalizeDouble(z)
-        );
-    }
-
-    @Override
-    protected void doReadFrom(ResultSet rset) throws SQLException {
+    public static CartesianCoordinate getFromSQL(ResultSet rset) throws SQLException {
         double x = rset.getDouble(Location.COLUMN_NAME_PARAM_A);
         double y = rset.getDouble(Location.COLUMN_NAME_PARAM_B);
         double z = rset.getDouble(Location.COLUMN_NAME_PARAM_C);
         Preconditions.assertScalar(x, "x not scalar in database");
         Preconditions.assertScalar(y, "y not scalar in database");
         Preconditions.assertScalar(z, "z not scalar in database");
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        return get(x, y, z);
+    }
+
+    @Override
+    protected void assertClassInvariants() {
+        Invariants.assertScalar(valueHolder.x, "x not scalar");
+        Invariants.assertScalar(valueHolder.y, "y not scalar");
+        Invariants.assertScalar(valueHolder.z, "z not scalar");
+    }
+
+    public double getX() {
+        return valueHolder.x;
+    }
+
+    public double getY() {
+        return valueHolder.y;
+    }
+
+    public double getZ() {
+        return valueHolder.z;
+    }
+
+    public double getDistance(CartesianCoordinate distanceTo) {
+        double dx = valueHolder.x - distanceTo.valueHolder.x;
+        double dy = valueHolder.y - distanceTo.valueHolder.y;
+        double dz = valueHolder.z - distanceTo.valueHolder.z;
+        return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
     }
 
     @Override
     protected void doWriteOn(ResultSet rset) throws SQLException {
-        rset.updateDouble(Location.COLUMN_NAME_PARAM_A, this.x);
-        rset.updateDouble(Location.COLUMN_NAME_PARAM_B, this.y);
-        rset.updateDouble(Location.COLUMN_NAME_PARAM_C, this.z);
+        rset.updateDouble(Location.COLUMN_NAME_PARAM_A, this.valueHolder.x);
+        rset.updateDouble(Location.COLUMN_NAME_PARAM_B, this.valueHolder.y);
+        rset.updateDouble(Location.COLUMN_NAME_PARAM_C, this.valueHolder.z);
     }
 
     @Override
@@ -105,11 +82,11 @@ public class CartesianCoordinate extends AbstractCoordinate {
     protected SphericCoordinate doGetAsSphericCoordinate() {
         double radius = getDistance(ORIGIN);
         if (radius == 0) {
-            return new SphericCoordinate(0, 0, 0);
+            return SphericCoordinate.get(0,0,0);
         }
-        double phi = Math.atan2(y, x);
-        double theta = Math.atan2(Math.sqrt(x * x + y * y), z);
-        return new SphericCoordinate(phi, theta, radius);
+        double phi = Math.atan2(valueHolder.y, valueHolder.x);
+        double theta = Math.atan2(Math.sqrt(valueHolder.x * valueHolder.x + valueHolder.y * valueHolder.y), valueHolder.z);
+        return SphericCoordinate.get(phi, theta, radius);
     }
 
     @Override
@@ -118,18 +95,44 @@ public class CartesianCoordinate extends AbstractCoordinate {
     }
 
     @Override
-    protected boolean doCheckEqual(Coordinate other) {
-        if (other == this) {
-            return true;
-        }
-        CartesianCoordinate otherCartesian = other.asCartesianCoordinate();
-        return compareDoublesNormalized(otherCartesian.x, x) &&
-                compareDoublesNormalized(otherCartesian.y, y) &&
-                compareDoublesNormalized(otherCartesian.z, z);
-    }
-
-    @Override
     protected short doGetCoordinateType() {
         return Location.CARTESIAN_COORDINATE_TYPE;
+    }
+
+    // Because we are value objects hashCode() and equals() work on reference identity.
+    // However for the sharedCache we need to compare the actually attribute vales therefore we need this ValueHolder class
+    private static class ValueHolder {
+        final double x;
+        final double y;
+        final double z;
+
+        public ValueHolder(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(
+                    normalizeDouble(x),
+                    normalizeDouble(y),
+                    normalizeDouble(z)
+            );
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if ((!(o instanceof ValueHolder))) {
+                return false;
+            }
+            if (o == this) {
+                return true;
+            }
+            ValueHolder other = (ValueHolder) o;
+            return compareDoublesNormalized(other.x, x) &&
+                    compareDoublesNormalized(other.y, y) &&
+                    compareDoublesNormalized(other.z, z);
+        }
     }
 }

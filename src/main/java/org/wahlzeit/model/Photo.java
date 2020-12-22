@@ -183,12 +183,12 @@ public class Photo extends DataObject {
 		maxPhotoSize = PhotoSize.getFromWidthHeight(width, height);
 
         if (location == null)
-            location = new Location(new CartesianCoordinate(0,0,0));
+            location = new Location(CartesianCoordinate.ORIGIN);
         try {
 			location.readFrom(rset);
 		} catch (IllegalArgumentException e) {
 			SysLog.logSysError("Invalid Location in database: " + e.getMessage() + ". Setting Location to default value");
-			location = new Location(new CartesianCoordinate(0, 0, 0));
+			location = new Location(CartesianCoordinate.ORIGIN);
 		}
 	}
 	
