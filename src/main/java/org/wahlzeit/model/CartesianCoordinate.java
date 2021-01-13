@@ -1,6 +1,7 @@
 package org.wahlzeit.model;
 
 import org.wahlzeit.utils.Invariants;
+import org.wahlzeit.utils.PatternInstance;
 import org.wahlzeit.utils.Preconditions;
 
 import java.sql.ResultSet;
@@ -9,6 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@PatternInstance(
+        patternName = "Value Object", 
+        participants = {})
 public class CartesianCoordinate extends AbstractCoordinate {
     // Because we are value objects hashCode() and equals() work on reference identity.
     // However for this cache we need to compare the actually attribute vales therefore we need the ValueHolder class

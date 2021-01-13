@@ -20,9 +20,14 @@
 
 package org.wahlzeit.webparts;
 
+import org.wahlzeit.utils.PatternInstance;
+
 import java.util.*;
 import java.io.*;
 
+@PatternInstance(
+		patternName = "Composite",
+		participants = "Composite")
 /**
  * A WritableList is a list of Writables.
  */

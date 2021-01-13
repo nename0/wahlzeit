@@ -1,6 +1,7 @@
 package org.wahlzeit.model;
 
 import org.wahlzeit.utils.Invariants;
+import org.wahlzeit.utils.PatternInstance;
 import org.wahlzeit.utils.Preconditions;
 
 import java.sql.ResultSet;
@@ -11,6 +12,9 @@ import java.util.Objects;
 
 import static java.lang.Math.*;
 
+@PatternInstance(
+        patternName = "Value Object",
+        participants = {})
 public class SphericCoordinate extends AbstractCoordinate {
 
     // Because we are value objects hashCode() and equals() work on reference identity.

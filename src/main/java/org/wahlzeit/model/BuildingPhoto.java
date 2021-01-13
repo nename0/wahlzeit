@@ -1,12 +1,16 @@
 package org.wahlzeit.model;
 
 import org.wahlzeit.services.SysLog;
+import org.wahlzeit.utils.PatternInstance;
 import org.wahlzeit.utils.Preconditions;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 
+@PatternInstance(
+        patternName = "Abstract Factory",
+        participants = "ConcreteProduct")
 public class BuildingPhoto extends Photo {
     public static final Calendar DATE_FUTURE = Calendar.getInstance();
     static {
