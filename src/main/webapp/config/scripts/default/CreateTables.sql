@@ -34,6 +34,8 @@ CREATE TABLE photos (
 	location_coordinate_a double precision,
 	location_coordinate_b double precision,
 	location_coordinate_c double precision,
+	building_type text,
+	building_name text,
 	date_built bigint
 );
 

@@ -66,6 +66,8 @@ public class UploadPhotoFormHandler extends AbstractWebFormHandler {
 		double location_y = 2;
 		double location_z = 3;
 		
+		String buildingType = "Schloss";
+		String buildingName = "Schloss Neuschwanstein";
 		long dateBuilt = System.currentTimeMillis();
 
 		try {
@@ -85,8 +87,10 @@ public class UploadPhotoFormHandler extends AbstractWebFormHandler {
 			try {
 				Location location = new Location(CartesianCoordinate.get(location_x, location_y, location_z));
 				photo.setLocation(location);
-				
-				photo.setDateBuilt(dateBuilt);
+
+				Building building = BuildingManager.getInstance().getBuilding(buildingName, buildingType);
+				building.setDateBuilt(dateBuilt);
+				photo.setBuilding(building);
 			} catch (IllegalArgumentException e) {
 				SysLog.logThrowable(e);
 				us.setMessage(us.cfg().getPhotoUploadFailed() + " (" + e.getMessage() + ")");

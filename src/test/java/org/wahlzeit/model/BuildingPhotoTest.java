@@ -6,14 +6,15 @@ import static org.junit.Assert.*;
 
 public class BuildingPhotoTest {
     @Test
-    public void testLocationGetterSetter() {
+    public void testBuildingGetterSetter() {
         BuildingPhoto p = new BuildingPhoto();
+        Building b = BuildingManager.getInstance().getBuilding("Schloss Neuschwanstein", "Schloss");
 
-        assertEquals(0, p.getDateBuilt());
+        assertNull(p.getBuilding());
 
-        p.setDateBuilt(1234);
+        p.setBuilding(b);
 
-        assertEquals(1234, p.getDateBuilt());
+        assertEquals(b, p.getBuilding());
 
         assertTrue(p.isDirty());
     }

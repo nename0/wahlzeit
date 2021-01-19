@@ -1,22 +1,14 @@
 package org.wahlzeit.model;
 
-import org.wahlzeit.services.SysLog;
 import org.wahlzeit.utils.PatternInstance;
-import org.wahlzeit.utils.Preconditions;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 
 @PatternInstance(
         patternName = "Abstract Factory",
         participants = "ConcreteProduct")
 public class BuildingPhoto extends Photo {
-    public static final Calendar DATE_FUTURE = Calendar.getInstance();
-    static {
-        DATE_FUTURE.set(2030, Calendar.JANUARY, 1);
-    }
-    
     public BuildingPhoto() {
         super();
     }
@@ -29,38 +21,35 @@ public class BuildingPhoto extends Photo {
         super(rset);
     }
 
-    protected long dateBuilt = 0;
+    protected Building building;
 
-    public long getDateBuilt() {
-        return dateBuilt;
+    public Building getBuilding() {
+        return building;
     }
 
-    public void setDateBuilt(long dateBuilt) {
-        assertBuiltDate(dateBuilt);
-        this.dateBuilt = dateBuilt;
+    public void setBuilding(Building building) {
         incWriteCount();
+        this.building = building;
+    }
+
+    @Override
+    public boolean isDirty() {
+        boolean selfDirty = super.isDirty();
+        boolean buildingDirty = building != null && building.isDirty();
+
+        return selfDirty || buildingDirty;
     }
 
     @Override
     public void readFrom(ResultSet rset) throws SQLException {
         super.readFrom(rset);
-        try {
-        setDateBuilt(rset.getLong("date_built"));}
-        catch (IllegalArgumentException e) {
-            SysLog.logSysError("Invalid dateBuilt in database: " + e.getMessage() + ". Setting dateBuilt to default value");
-            setDateBuilt(0); // 1970
-        }
+        building = BuildingManager.getInstance().createObject(rset);
     }
 
     @Override
     public void writeOn(ResultSet rset) throws SQLException {
         super.writeOn(rset);
-        rset.updateLong("date_built", dateBuilt);
-    }
-    
-    private static void assertBuiltDate(long dateBuilt) {
-        if (dateBuilt > DATE_FUTURE.getTimeInMillis()) {
-            Preconditions.fail("dateBuilt in Future");
-        }
+        if (building != null)
+            building.writeOn(rset);
     }
 }
