@@ -8,6 +8,18 @@ import java.sql.SQLException;
 @PatternInstance(
         patternName = "Abstract Factory",
         participants = "ConcreteProduct")
+/*
+ * method calls that lead to new object:
+ * ObjectManager.readObject()
+ * BuildingPhotoManager.createObject()
+ * BuildingPhotoFactory.createPhoto()
+ * BuildingPhoto.<init>()
+ * Photo.<init>()
+ * BuildingPhoto.readFrom()
+ * Photo.readFrom()
+ * Location.readFrom()
+ * CartesianCoordinate/SphericCoordinate.getFromSQL()
+ */
 public class BuildingPhoto extends Photo {
     public BuildingPhoto() {
         super();

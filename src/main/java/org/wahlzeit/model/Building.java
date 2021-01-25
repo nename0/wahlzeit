@@ -9,6 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 
+/*
+ * method calls that lead to new object:
+ * BuildingManager.createObject()
+ * Building.<init>()
+ * BuildingManager.getBuildingType()
+ * Building.readFrom()
+ */
 public class Building extends DataObject {
     public static final Calendar DATE_FUTURE = Calendar.getInstance();
 
