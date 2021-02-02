@@ -10,6 +10,59 @@ import java.sql.SQLException;
 import java.util.Calendar;
 
 /*
+ * Client-Service collaboration:
+ * The role "Client" binds to BuildingPhoto class
+ * The role "Service" binds to Building class
+ * 
+ * Type Object collaboration:
+ * The role "Base Object" binds to Building class
+ * The role "Type Object" binds to BuildingType class
+ * 
+ * Manager collaboration:
+ * The role "Manager" binds to BuildingManager class
+ * The role "Element" binds to Building class
+ */
+
+/*
+// collaborations using pseudo syntax:
+
+public collaboration ClientService {
+    public role Client { ... }
+    public role Service { ... }
+}
+public collaboration TypeObject {
+    public role TypeObject {
+        public TypeObject getSuperType();
+        public boolean isTypeOfInstance(BaseObject instance);
+    }
+    public role BaseObject {
+       public TypeObject getType();
+    }
+}
+public collaboration Manager {
+    public role Manager {
+        public Element createObject(ResultSet r);
+        public void updateObject(Element object, PreparedStatement stmt);
+        public void deleteObject(Element object, PreparedStatement stmt);
+    }
+    public role Element {
+        public void readFrom(ResultSet r);
+        public void writeOn(ResultSet r);
+   }
+}
+
+public class Building extends DataObject binds ClientService.Service,
+                                               TypeObject.BaseObject,
+                                               Manager.Element { 
+    ... 
+}
+public class BuildingPhoto extends Photo binds ClientService.Client { ... }
+public class BuildingType binds TypeObject.TypeObject { ... }
+public class BuildingManager extends ObjectManager binds Manager.Manager { ... }
+ */
+
+
+/*
  * method calls that lead to new object:
  * BuildingManager.createObject()
  * Building.<init>()
